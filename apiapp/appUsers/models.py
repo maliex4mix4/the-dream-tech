@@ -9,7 +9,7 @@ class User(AbstractUser):
     email = models.EmailField(_('email address'), unique=True)
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['first_name', 'last_name', 'mobile_no', 'address']
+    REQUIRED_FIELDS = ['username', 'first_name', 'last_name', 'mobile_no', 'address']
 
     def __str__(self):
         return "{}".format(self.email)
