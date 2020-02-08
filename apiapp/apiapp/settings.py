@@ -25,7 +25,7 @@ SECRET_KEY = 've51u&u@cc9*z=4p4spri+&edhh_=1e*xm#yn!**)@kcx&ru4k'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -43,7 +43,7 @@ INSTALLED_APPS = [
     'appUsers',
 ]
 
-REST_FRAMEWORK = [
+REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.TokenAuthentication',
@@ -52,7 +52,7 @@ REST_FRAMEWORK = [
     'DEFAULT_PERMISSIONS_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
     ),
-]
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -134,4 +134,4 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-AUTH_USER_MODEL = 'appUsers.User'
+##AUTH_USER_MODEL = 'appUsers.User'
