@@ -5,5 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from rest_framework.response import Response
 
-def restricted(request, **args, **kwargs):
+
+@app_view(['GET'])
+def restricted(request, *args, **kwargs):
 	return Response(data='only for logged in user', status=status.HTTP_200_OK)
