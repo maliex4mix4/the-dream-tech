@@ -38,9 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'rest_framework.authtoken',
-    'djoser',
-    'appUsers',
+
 ]
 
 REST_FRAMEWORK = {
@@ -54,6 +52,7 @@ REST_FRAMEWORK = {
     ),
 }
 
+"""
 DJOSER = {
     'LOGIN_FIELD': 'email',
     'USER_CREATE_PASSWORD_RETYPE': True,
@@ -62,6 +61,8 @@ DJOSER = {
         'user': 'appUsers.serializers.UserCreateSerializer',
     },
 }
+
+"""
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -143,4 +144,4 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-AUTH_USER_MODEL = 'appUsers.User'
+## AUTH_USER_MODEL = 'appUsers.User'
