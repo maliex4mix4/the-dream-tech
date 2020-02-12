@@ -4,12 +4,12 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 
 # Create your models here.
- from .managers import UserManager
+from .managers import UserManager
 
- class User(AbstractUser):
+class User(AbstractUser):
  	username = None
- 	phone_no = models.CharField(max_lenght=50, unique=True)
- 	address = models.CharField(max_lenght=100)
+ 	phone_no = models.CharField(max_length=50, unique=True)
+ 	address = models.CharField(max_length=100)
  	email = models.EmailField(_('email address'), unique=True)
 
  	USERNAME_FIELD = 'email'
