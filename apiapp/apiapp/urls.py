@@ -5,5 +5,4 @@ from users import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('users.urls')),
-    path('api/auth/users/req', views.req)
 ]
