@@ -5,9 +5,9 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.decorators import api_view
 from .serializers import UserSerializer
-from django.http import HttpRequest
 
 from .models import User
+from .forms import CustomUserCreationForm
 
 # USER RELATED
 class UserCreate(APIView):
@@ -46,14 +46,8 @@ class LoginView(APIView):
 		token = Token.objects.get_or_create(user=user)
 		return Response({'token': token[0].key})
 
-@api_view(['POST'])
-def req(request):
-		try:
-			data = request.data
-			if len(data) < 1:
-				return Response('Empty', status=status.HTTP_404_NOT_FOUND)
-		except ParseError as error:
-			return Response('Invalid JSON - {0}'.format(error.detail), status=status.HTTP_400_BAD_REQUEST)
-		
-		return Response('Wrong credentials '+str(data), status=status.HTTP_401_UNAUTHORIZED)
+@api_view(['GET', 'POST'])
+def req(request, *args, **kwargs):
+	data = request.POST
+	return Response('Wrong credentials '+str(data)+' '+str(request.method), status=status.HTTP_401_UNAUTHORIZED)
 		
