@@ -20,18 +20,16 @@ class UserCreate(APIView):
 			if len(data) < 1:
 				data = request.query_params
 		except ParseError as error:
-			return Response(error.detail, status=status.HTTP_400_BAD_REQUEST)
+			return Response('Error: '+error.detail, status=status.HTTP_400_BAD_REQUEST)
 		fields = ['first_name', 'last_name', 'address', 'phone_no', 'email', 'password']
+		data_real = {}
 		for f in fields:
-			if f not in data:
-				return Response('Wrong credentials'+ str(data), status=status.HTTP_401_UNAUTHORIZED)
-		serializer = self.serializer_class(data=data)
-		if serializer.is_valid():
-			serializer.save()
+			data_real[f] = data[f]
+		serializer = self.serializer_class(data=data_real)
+		serializer.create(validated_data)
 
-			return Response(serializer.data, status=status.HTTP_201_CREATED)
-		return Response('Account could not be created', status=HTTP_400_BAD_REQUEST)		
-
+		return Response(serializer.data, status=status.HTTP_201_CREATED)
+	
 class LoginView(APIView):
 
 	def post(self, request, format=None):
