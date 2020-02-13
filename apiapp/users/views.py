@@ -3,14 +3,37 @@ from rest_framework.authtoken.models import Token
 from rest_framework.exceptions import ParseError
 from rest_framework import status
 from rest_framework.views import APIView
-##from .serializers import UserSerializers
 
-# Create your views here.
+from .serializers import UserSerializer
+
+from .models import User
+
+# USER RELATED
+class UserCreate(APIView):
+
+	serializer_class = UserSerializer
+
+	def post(self, request):
+		try:
+			data = request.data
+		except ParseError as error:
+			return Response(error.detail, status=status.HTTP_400_BAD_REQUEST)
+		fields = ['first_name', 'last_name', 'address', 'phone_no', 'email', 'password']
+		for f in fields:
+			if f not in data:
+				return Response('Wrong credentials', status=status.HTTP_401_UNAUTHORIZED)
+		serializer = self.serializer_class(data=data)
+		if serializer.is_valid():
+			created = serializer.create()
+
+			return Response(created.validated_data, status=status.HTTP_201_CREATED)
+		return Response('Account could not be created', status=HTTP_400_BAD_REQUEST)		
+
 class LoginView(APIView):
 
 	def post(self, request, format=None):
 		try:
-			data = request.DATA
+			data = request.data
 		except ParseError as error:
 			return Response('Invalid JSON - {0}'.format(error.detail), status=status.HTTP_400_BAD_REQUEST)
 		if "email" not in data or "password" not in data:
