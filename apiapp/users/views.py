@@ -1,5 +1,6 @@
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
+from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.exceptions import ParseError
 from rest_framework import status
 from rest_framework.views import APIView
@@ -30,8 +31,8 @@ class UserCreate(APIView):
 
 		return Response(serializer.data, status=status.HTTP_201_CREATED)
 	
-class LoginView(APIView):
-
+class LoginView(ObtainAuthToken):
+	serializer = UserSerializer
 	def post(self, request, format=None):
 		try:
 			data = request.data
@@ -39,12 +40,14 @@ class LoginView(APIView):
 				data = request.query_params
 		except ParseError as error:
 			return Response('Invalid JSON - {0}'.format(error.detail), status=status.HTTP_400_BAD_REQUEST)
-		if "email" not in data or "password" not in data:
-			return Response(
-			'Wrong credentials'+str(request.data), status=status.HTTP_401_UNAUTHORIZED)
-		user = User.objects.first()
-		if  user:
-			token = Token.objects.create(user=user)
-			return Response({'token': token[0].key})
-		return Response('No default user, please create one', status=status.HTTP_404_NOT_FOUND)
+		serializer = self.serializer(data=data)
+		serializer.is_valid(raise_exception=True)
+		user = serializer.validated_data['user']
+		token, created = Token.objects.get_or_create(user=user)
+		return Response({
+		    'token': token.key,
+		    'user_id': user.pk,
+		    'email': user.email,
+		})
+		#return Response('No default user, please create one', status=status.HTTP_404_NOT_FOUND)
 		
