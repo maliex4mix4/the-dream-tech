@@ -6,6 +6,7 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.decorators import api_view
 from .serializers import UserSerializer
+from django.contrib.auth import authenticate
 
 from .models import User
 from .forms import CustomUserCreationForm
@@ -32,7 +33,9 @@ class UserCreate(APIView):
 		return Response(serializer.data, status=status.HTTP_201_CREATED)
 	
 class LoginView(ObtainAuthToken):
-	serializer = UserSerializer
+
+	permission_classes = ()
+
 	def post(self, request, format=None):
 		try:
 			data = request.data
@@ -40,14 +43,23 @@ class LoginView(ObtainAuthToken):
 				data = request.query_params
 		except ParseError as error:
 			return Response('Invalid JSON - {0}'.format(error.detail), status=status.HTTP_400_BAD_REQUEST)
-		serializer = self.serializer(data=data)
-		serializer.is_valid(raise_exception=True)
-		user = serializer.validated_data['user']
-		token, created = Token.objects.get_or_create(user=user)
+		obj = User.objects.filter(email=data['email']).first()
+		if not obj:
+			return Response({
+				"error": "No such user",
+			})
+		token, created = Token.objects.get_or_create(user=obj)
+		return Response({
+		    'token': token.key,
+		    'user_id': obj.pk,
+		    'email': obj.email,
+		})
+		"""
+		token, created = Token.objects.create(user=user)
 		return Response({
 		    'token': token.key,
 		    'user_id': user.pk,
 		    'email': user.email,
 		})
 		#return Response('No default user, please create one', status=status.HTTP_404_NOT_FOUND)
-		
+		"""
