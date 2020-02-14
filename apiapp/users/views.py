@@ -9,12 +9,11 @@ from .serializers import UserSerializer
 from django.contrib.auth import authenticate
 
 from .models import User
-from .forms import CustomUserCreationForm
+
 
 # USER RELATED
 class UserCreate(APIView):
 
-	serializer_class = UserSerializer
 
 	def post(self, request):
 		try:
@@ -23,14 +22,18 @@ class UserCreate(APIView):
 				data = request.query_params
 		except ParseError as error:
 			return Response('Error: '+error.detail, status=status.HTTP_400_BAD_REQUEST)
-		fields = ['first_name', 'last_name', 'address', 'phone_no', 'email', 'password']
-		data_real = {}
-		for f in fields:
-			data_real[f] = data[f]
-		serializer = self.serializer_class(data=data_real)
-		serializer.create(validated_data)
-
-		return Response(serializer.data, status=status.HTTP_201_CREATED)
+		
+		user_create = UserSerializer(data=data)
+		if user_create.is_valid():
+			user_create.save()
+			return Response({
+				"success": True,
+				"payload": user_create.initial_data,
+			})
+		else:
+			return Response({
+				"error": user_create.errors,
+			})
 	
 class LoginView(ObtainAuthToken):
 
@@ -48,18 +51,16 @@ class LoginView(ObtainAuthToken):
 			return Response({
 				"error": "No such user",
 			})
+		if obj.password != data['password']:
+			return Response({
+				"error": "Invalid Password",
+			})
 		token, created = Token.objects.get_or_create(user=obj)
 		return Response({
-		    'token': token.key,
-		    'user_id': obj.pk,
-		    'email': obj.email,
+			"success": True,
+			"payload": {
+				'token': token.key,
+		    	'user_id': obj.pk,
+		    	'email': obj.email,
+			},
 		})
-		"""
-		token, created = Token.objects.create(user=user)
-		return Response({
-		    'token': token.key,
-		    'user_id': user.pk,
-		    'email': user.email,
-		})
-		#return Response('No default user, please create one', status=status.HTTP_404_NOT_FOUND)
-		"""

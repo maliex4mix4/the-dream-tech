@@ -8,6 +8,3 @@ class UserSerializer(ModelSerializer):
 		fields = '__all__'
 		read_only_fields = ('id',)
 
-	def create(self,  validated_data):
-		return User.objects.create(**validated_data)
-		
