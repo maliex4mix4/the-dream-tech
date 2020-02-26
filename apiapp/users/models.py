@@ -34,19 +34,26 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractUser):
- 	username = None
- 	phone_no = models.CharField(max_length=50, unique=True)
- 	address = models.CharField(max_length=100)
- 	email = models.EmailField(_('email address'), unique=True)
+    datecreated = models.DateTimeField(default=datetime.now(),)
+    username = None
+    phone_no = models.CharField(max_length=50, unique=True)
+    address = models.CharField(max_length=100)
+    email = models.EmailField(_('email address'), unique=True)
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['first_name', 'last_name', 'address', 'phone_no']
+    objects = UserManager()
+    def __str__(self):
+        return self.email
 
- 	USERNAME_FIELD = 'email'
- 	REQUIRED_FIELDS = ['first_name', 'last_name', 'address', 'phone_no']
+class VendorsAccount(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    phone_no = models.CharField(max_length=50, unique=True)
+    address = models.CharField(max_length=100)
+    datecreated = models.DateTimeField(default=datetime.now())
+    email = models.EmailField(_('email address'), unique=True)
 
- 	objects = UserManager()
-
- 	def __str__(self):
- 		return self.email
-
+    def __str__(self):
+        return self.email
 
 class EmailActivationQuerySet(models.query.QuerySet):
 
