@@ -9,6 +9,7 @@ from .serializers import UserSerializer
 from django.contrib.auth import authenticate
 
 from .models import User
+from .models import EmailActivation
 
 
 # USER RELATED
@@ -21,20 +22,22 @@ class UserCreate(APIView):
 			if len(data) < 1:
 				data = request.query_params
 		except ParseError as error:
-			return Response('Error: '+error.detail, status=status.HTTP_400_BAD_REQUEST)
-		
+			return Response({"success": False, "payload": error.detail,}, status=status.HTTP_400_BAD_REQUEST)
+
 		user_create = UserSerializer(data=data)
+		key_ = base64.b64encode(data['email'])
 		if user_create.is_valid():
 			user_create.save()
+			new_activation = EmailActivation.objects.create(user=user, email=email, key=key_)
+			new_activation.send_activation()
 			return Response({
 				"success": True,
 				"payload": user_create.initial_data,
+				"info": "User created. Please confirm Email."
 			})
 		else:
-			return Response({
-				"error": user_create.errors,
-			})
-	
+			return Response({"success": False, "payload": user_create.errors,})
+
 class LoginView(ObtainAuthToken):
 
 	permission_classes = ()
@@ -64,3 +67,37 @@ class LoginView(ObtainAuthToken):
 		    	'email': obj.email,
 			},
 		})
+
+class EmailActivateView(APIView):
+
+	def get(self, request, key=None):
+		if key is not None:
+			self.key = key
+			qs = EmailActivation.objects.filter(key__iexact=key)
+			confirm_qs = qs.confirmable()
+			if confirm_qs.count() == 1:  # Not confirmed but confirmable
+				obj = confirm_qs.first()
+				obj.activate()
+				return Response({"success": True, "payload": {}, "info": "Email Confirmed successfuly",})
+			else:
+				activated_qs = qs.filter(activated=True)
+				if activated_qs.exists():
+					return Response({"success": True, "info": "Email Confirmed Already",})
+		return Response({"success": False, "payload": {}, "info": "Email coould not be activated.",})
+
+		def post(self, request):
+			try:
+				data = request.data
+				if len(data) < 1:
+					data = request.query_params
+			except ParseError as error:
+				return Response({"success": False, "payload": error.detail,}, status=status.HTTP_400_BAD_REQUEST)
+
+			user_exist = User.objects.filter(email=data['email']).first()
+			key_ = base64.b64encode(data['email'])
+
+			if user_exist:
+				new_activation = EmailActivation.objects.create(user=user, email=email, key=key_)
+				new_activation.send_activation()
+			else:
+				return Response({"success": False, "payload": user_create.errors,})
