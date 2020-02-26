@@ -52,11 +52,15 @@ class LoginView(ObtainAuthToken):
 		obj = User.objects.filter(email=data['email']).first()
 		if not obj:
 			return Response({
-				"error": "No such user",
+				"success": False,
+				"payload": {},
+				"info": "No such user",
 			})
 		if obj.password != data['password']:
 			return Response({
-				"error": "Invalid Password",
+				"success": False,
+				"payload": {},
+				"info": "Invalid Username or password",
 			})
 		token, created = Token.objects.get_or_create(user=obj)
 		return Response({
