@@ -10,9 +10,33 @@ from django.contrib.auth import authenticate
 
 from .models import User
 from .models import EmailActivation
+from .models import VendorsAccount
 
+from .serializers import VendorSerializer
 
 # USER RELATED
+class VendorCreate(APIView):
+
+	def post(self, request):
+		try:
+			data = request.data
+			if len(data) < 1:
+				data = request.query_params
+		except ParseError as error:
+			return Response({"success": False, "payload": error.detail,}, status=status.HTTP_400_BAD_REQUEST)
+
+		user_create = VendorSerializer(data=data)
+		if user_create.is_valid():
+			user_create.save()
+			return Response({
+				"success": True,
+				"payload": user_create.initial_data,
+				"info": "Vendor Account activated."
+			})
+		else:
+			return Response({"success": False, "payload": user_create.errors,})
+
+
 class UserCreate(APIView):
 
 

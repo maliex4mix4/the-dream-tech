@@ -39,3 +39,8 @@ This shows a documentation for the user Account.
 - {base_url}/api/auth/email/confirm/<key> [method=GET]
 - Create new_activation
 - {base_url}/api/auth/email/confirm/  [method=POST] and takes only email in the form field.
+
+### Vendor Create account.
+
+- {base_url}/api/auth/vendors/ [method=POST]
+- Once the User account is logged in then vendor account is also active.
