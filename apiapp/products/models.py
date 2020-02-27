@@ -2,6 +2,14 @@ from django.db import models
 from users.models import User
 # Create your models here.
 
+class Category(models.Model):
+
+    name = models.CharField(max_length=100)
+    datecreated = models.DateTimeField(auto_now=True)
+    description = models.CharField(max_length=200)
+
+    def __str__(self):
+        return self.name
 
 class Products(models.Model):
     name = models.CharField(max_length=100)
@@ -15,12 +23,4 @@ class Products(models.Model):
 
     def __str__(self):
         return self.name
-
-class Category(models.Model):
-
-    name = models.CharField(max_length=100)
-    datecreated = models.DateTimeField(auto_now=True)
-    description = models.CharField(max_length=200)
-
-    def __str__(self):
-        return self.name
+        
